@@ -2,6 +2,8 @@ import java.io.*;
 import java.net.Socket;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import javax.swing.*;
@@ -13,7 +15,10 @@ class Client extends Thread
     protected BufferedReader in; // поток чтения из сокета
     protected BufferedWriter out;
     private static JFrame window;
+    //private JTextArea ta;
     private JTextArea ta;
+    private JPanel panel;
+    private static JFrame frame;
 
     Client()
     {
@@ -34,7 +39,7 @@ class Client extends Thread
 
         }
 
-        createWindow();
+        createStartWindow();
     }
     public static void main(String[] args)
     {
@@ -49,6 +54,7 @@ class Client extends Thread
             {
                 String messageServer = in.readLine();
                 ta.append(messageServer + '\n');
+                //ta.append(messageServer + '\n');
             }
             catch (IOException error)
             {
@@ -57,29 +63,43 @@ class Client extends Thread
         }
     }
 
-    public void createWindow()
+    public void createStartWindow()
     {
-        System.setProperty("sun.java2d.uiScale", "2");
-        JFrame frame = new JFrame("Chat Frame");
+        System.setProperty("sun.java2d.uiScale", "1");
+        frame = new JFrame("Chat Frame");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 400);
-        JMenuBar ob = new JMenuBar();
-        JMenu ob1 = new JMenu("FILE");
-        JMenu ob2 = new JMenu("Help");
-        ob.add(ob1);
-        ob.add(ob2);
-        JMenuItem m11 = new JMenuItem("Open");
-        JMenuItem m22 = new JMenuItem("Save as");
-        ob1.add(m11);
-        ob1.add(m22);
+        frame.setSize(500, 800);
+        panel = new JPanel();// the panel is not visible in output
+        JLabel labelStart = new JLabel("Enter your name");
+        JTextField tfStart = new JTextField(20);
         
-        JPanel panel = new JPanel(); // the panel is not visible in output
+        
+        panel.add(labelStart); // Components Added using Flow Layout
+        panel.add(tfStart);
+        frame.getContentPane().add(BorderLayout.SOUTH, panel);
+        frame.setVisible(true);
+        tfStart.addKeyListener(new KeyAdapter()
+        {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == 10)
+                {
+                    panel.remove(labelStart);
+                    panel.remove(tfStart);
+                    frame.setVisible(false);
+                    createChatWindow();
+                }
+            }
+        });
+    }
+
+    public void createChatWindow()
+    {
         JLabel label = new JLabel("Enter Text");
         JTextField tf = new JTextField(20); // accepts upto 10 characters
-
-        tf.addKeyListener(new KeyAdapter() {
-     
-            public void keyPressed(KeyEvent e) {
+        tf.addKeyListener(new KeyAdapter() 
+        {
+            public void keyPressed(KeyEvent e) 
+            {
                 if (e.getKeyCode() == 10)
                 {
                     try
@@ -93,21 +113,34 @@ class Client extends Thread
                         System.out.println(error);
                     }
                     tf.setText("");
-
                 }
-            }
-                     
+            }            
         });
 
         JButton send = new JButton("Send");
-        panel.add(label); // Components Added using Flow Layout
+        send.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                try
+                {
+                    System.out.println(out);
+                    out.write(tf.getText() + '\n');
+                    out.flush();
+                }
+                catch (IOException error)
+                {
+                    System.out.println(error);
+                }
+                tf.setText(""); 
+            } 
+        });
         panel.add(label); // Components Added using Flow Layout
         panel.add(tf);
         panel.add(send);
         ta = new JTextArea();
-        ta.setEditable(false);
         ta.setLineWrap(true);
-        frame.getContentPane().add(BorderLayout.SOUTH, panel);
+        ta.setEditable(false);
         frame.getContentPane().add(BorderLayout.CENTER, ta);
         frame.setVisible(true);
     }
