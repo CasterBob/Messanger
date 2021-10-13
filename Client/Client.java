@@ -59,7 +59,7 @@ class Client extends Thread
 
     public void createWindow()
     {
-              
+        System.setProperty("sun.java2d.uiScale", "2");
         JFrame frame = new JFrame("Chat Frame");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 400);
