@@ -19,7 +19,7 @@ class Client extends Thread
     {
         try
         {
-            clientSocket = new Socket("localhost", 8080); // этой строкой мы запрашиваем
+            clientSocket = new Socket("192.168.1.79", 8080); // этой строкой мы запрашиваем
             //  у сервера доступ на соединение
             reader = new BufferedReader(new InputStreamReader(System.in));
             // читать соообщения с сервера
